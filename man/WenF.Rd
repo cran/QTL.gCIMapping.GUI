@@ -21,11 +21,11 @@ Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming\cr
 Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \examples{
-\dontrun{
 G2=data(genf2)
 P2=data(phef2)
 M2=data(mapf2)
-WenF(phef2,genf2,mapf2,yygg1=NULL,cov_en=NULL,1,2.5,dir=tempdir())}
+WenF(phef2,genf2,mapf2,yygg1=NULL,cov_en=NULL,1,2.5,dir=tempdir())
 }
+
 
 

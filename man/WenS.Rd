@@ -34,10 +34,14 @@ Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \examples{
 G2=data(genf2)
-WenS(flag=0,CriLOD=2.5,NUM=1,pheRaw=NULL,
-Likelihood="REML",flagrqtl=TRUE,yygg=NULL,mx=genf2,phe=NULL,chr_name=NULL,
-v.map=NULL,gen.raw=NULL,a.gen.orig=NULL,d.gen.orig=NULL,n=NULL,
-names.insert2=NULL,X.ad.tran.data=NULL,X.ad.t4=NULL,dir=NULL)
+P2=data(phef2)
+M2=data(mapf2)
+WEN1re<-WenF(phef2,genf2,mapf2,yygg1=NULL,cov_en=NULL,1,2.5,dir=tempdir())
+WenS(flag=1,CriLOD=2.5,NUM=1,phef2,Likelihood="REML",
+flagrqtl=FALSE,WEN1re$yygg,WEN1re$mx,WEN1re$phe,WEN1re$chr_name,
+WEN1re$v.map,WEN1re$gen.raw,WEN1re$a.gen.orig,WEN1re$d.gen.orig,
+WEN1re$n,WEN1re$names.insert2,WEN1re$X.ad.tran.data,WEN1re$X.ad.t4,
+dir=tempdir())
 }
 
 

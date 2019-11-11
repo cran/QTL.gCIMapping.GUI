@@ -261,10 +261,10 @@ QTL.gCIMapping.GUI<-function(){
         negloP <- -log10(as.matrix(res11[,3]))
         if(is.null(galaxyy1)==FALSE){
           par(mar=c(2*margin_space,2*margin_space,2*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
+          plot(newposadd,negloP,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
+          par(new=TRUE)
           plot(pospic,lodpic,type="h",col=color1,xlab="",ylab="Logarithm of odds (LOD)",cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadd)),ylim=c(0,max(lodpic)))
           abline(h=lodthred)
-          par(new=TRUE)
-          plot(newposadd,negloP,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
           axis(side=4,cex.axis=legend_size)
           mtext(expression('-log'[10]*'(P)'),side=4,line=3*axis_space,cex=legend_size)
           abline(v=pos_acc,lty=2,col="gray")
@@ -344,12 +344,12 @@ QTL.gCIMapping.GUI<-function(){
         negloPd <- as.matrix(res1d[,3])
         if(is.null(galaxyy1)==FALSE){
           par(mar=c(2*margin_space,2*margin_space,2*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
-          plot(pospic,lodpic,type="h",col=color1,xlab="",ylab="Logarithm of odds (LOD)",cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,max(lodpic)))
-          abline(h=lodthred)
-          par(new=TRUE)
           plot(newposadda,negloPa,type="l",col=color3,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa)))
           par(new=TRUE)
           plot(newposaddd,negloPd,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPd)))
+          par(new=TRUE)
+          plot(pospic,lodpic,type="h",col=color1,xlab="",ylab="Logarithm of odds (LOD)",cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,max(lodpic)))
+          abline(h=lodthred)
           axis(side=4,cex.axis=legend_size)
           mtext(expression('-log'[10]*'(P)'),side=4,line=3*axis_space,cex=legend_size)
           abline(v=pos_acc,lty=2,col="gray")
@@ -417,7 +417,6 @@ QTL.gCIMapping.GUI<-function(){
             flagRIL<-0
           }else if(Population=="BC2"){
             gen_1<-gsub("-1","99",gen_0)
-            #gen_2<-gsub("1","1",gen_1)
             gen_11<-gsub("0","-1",gen_1)
             flagRIL<-0
           }else if(Population=="DH"){
@@ -431,12 +430,12 @@ QTL.gCIMapping.GUI<-function(){
             gen_11<-gsub("2","1",gen_2)
             flagRIL<-1
           }else if(Population=="F2"){
-            gen_1<-gsub("-1","-",gen_0)
-            gen_2<-gsub("0","B",gen_1)
-            gen_3<-gsub("2","A",gen_2)
-            gen_4<-gsub("1","H",gen_3)
-            gen_5<-gsub("12","D",gen_4)
-            gen_11<-gsub("10","C",gen_5)
+            gen_1<-gsub("12","D",gen_0)
+            gen_2<-gsub("10","C",gen_1)
+            gen_3<-gsub("0","B",gen_2)
+            gen_4<-gsub("2","A",gen_3)
+            gen_5<-gsub("-1","-",gen_4)
+            gen_11<-gsub("1","H",gen_5)
             flagRIL<-0
           }
           
@@ -781,12 +780,12 @@ QTL.gCIMapping.GUI<-function(){
             genRaw<-rbind(genRawqq[1,],genRawh)
             flagRIL<-1
           }else if(Population=="F2"){
-            marker_snp1<-gsub("0","B",genRawq)
-            marker_snp2<-gsub("2","A",marker_snp1)
-            marker_snp3<-gsub("1","H",marker_snp2)
-            marker_snp4<-gsub("12","D",marker_snp3)
-            marker_snp5<-gsub("10","C",marker_snp4)
-            genRawh<-gsub("-1","-",marker_snp5,fixed = TRUE)  
+            marker_snp1<-gsub("12","D",genRawq)
+            marker_snp2<-gsub("10","C",marker_snp1)
+            marker_snp3<-gsub("0","B",marker_snp2)
+            marker_snp4<-gsub("2","A",marker_snp3)
+            marker_snp5<-gsub("-1","-",marker_snp4)
+            genRawh<-gsub("1","H",marker_snp5,fixed = TRUE)  
             genRaw<-rbind(genRawqq[1,],genRawh)
             flagRIL<-0
           }
@@ -877,7 +876,7 @@ QTL.gCIMapping.GUI<-function(){
       fileFormat<-input$dataformat;Model<-input$model;Population<-input$Pop
       WalkSpeed<-as.numeric(input$Walk);CriLOD<-as.numeric(input$Crilod);Likelihood<-input$likelihood;flagrqtl<-input$Rqtl
       DrawPlot<-input$drawplot;PlotFormat<-input$Plotformat;Resolution<-input$resolution
-      trait1<-as.numeric(input$Trait1);trait2<-as.numeric(input$Trait2)
+      trait<-as.numeric(input$trait);
       
       readraw<-ReadData()
       DoResult<-DoData(fileFormat,Population,Model,readraw)
@@ -889,7 +888,7 @@ QTL.gCIMapping.GUI<-function(){
       
       W1re<-NULL;WEN1re<-NULL
       
-      if(Resolution=="Low"){
+      if(Resolution=="General"){
         widqqvalue<-1500
         heightqqvalue<-600
         pointsizeqqvalue<-12
@@ -905,13 +904,24 @@ QTL.gCIMapping.GUI<-function(){
       gcimFuncF2<-plotF2()
       
       
+      if(length(grep(":",input$trait))!=0){
+        scope<-as.numeric(unlist(strsplit(input$trait,":")))
+        trait<-as.numeric(scope[1]:scope[2])
+      }else if(length(grep(",",input$trait))!=0){
+        scope<-as.numeric(unlist(strsplit(input$trait,",")))
+        trait<-c(scope)
+      }else if(length(grep(":",input$trait))==0&&length(grep(",",input$trait))==0){
+        trait<-as.numeric(input$trait)
+      }
+      
+      
       if(Population=="F2"){
         
         withProgress(message = 'Running in progress', value = 0, {
         
         WEN1re<-WenF(pheRaw,genRaw,mapRaw1,yygg1,cov_en,WalkSpeed,CriLOD,dir)
         
-        for(NUM in trait1:trait2){
+        for(NUM in trait){
             rewen<-NULL;mxmp=NULL;galaxyy1<-NULL;res1a=NULL;res1d=NULL;chr_name=NULL 
             TRY1<-try({
               outWEN<-WenS(flag,CriLOD,NUM,pheRaw,Likelihood,flagrqtl,WEN1re$yygg,WEN1re$mx,WEN1re$phe,WEN1re$chr_name,
@@ -950,7 +960,8 @@ QTL.gCIMapping.GUI<-function(){
                 
                 if(DrawPlot==TRUE){
                   if(PlotFormat=="*.png")
-                  {png(paste(NUM,"_resF2.png"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
+                  {
+                    png(paste(NUM,"_resF2.png"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
                   }else if(PlotFormat=="*.tiff"){
                     tiff(paste(NUM,"_resF2.tiff"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
                   }else if(PlotFormat=="*.jpeg"){
@@ -958,12 +969,12 @@ QTL.gCIMapping.GUI<-function(){
                   }else if(PlotFormat=="*.pdf"){
                     pdf(paste(NUM,"_resF2.pdf"), width=16)
                   }
-                  gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50","green",2.5)
+                  gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50","green",CriLOD)
                   dev.off()
                 }
               },silent=FALSE)  
             }
-            incProgress(1/(trait2-trait1+1), detail = paste("Doing part", NUM))
+            incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
             Sys.sleep(0.1)
           }
         })
@@ -974,10 +985,10 @@ QTL.gCIMapping.GUI<-function(){
         
         W1re<-WangF(pheRaw,genRaw,mapRaw1,yygg1,flagRIL,cov_en,Population,WalkSpeed,CriLOD)
         
-        for(NUM in trait1:trait2){
+        for(NUM in trait){
             rew<-NULL;mxmp=NULL;galaxyy1<-NULL;res11=NULL;chr_name=NULL
             TRY1<-try({
-              outW<-WangS(flag,CriLOD,NUM,pheRaw,W1re$chrRaw_name,W1re$yygg,W1re$mx,W1re$phe,W1re$chr_name,W1re$gen,W1re$mapname)
+              outW<-WangS(flag,CriLOD,NUM,pheRaw,W1re$chrRaw_name,W1re$yygg,W1re$mx,W1re$phe,W1re$chr_name,W1re$gen,W1re$mapname,CLO=NULL)
               rew<-outW$result
               mxmp<-outW$mxmp;res11<-outW$res11;chr_name<-outW$chr_name;galaxyy1<-outW$galaxyy1
             },silent=FALSE)  
@@ -985,32 +996,25 @@ QTL.gCIMapping.GUI<-function(){
             if ('try-error' %in% class(TRY1)|| !('try-error' %in% class(TRY1))){   
               TRY2<-try({ 
                 write.table(rew,paste(NUM,"_GCIM result.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
-                
-                
                 if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
                 if(is.null(res11)==FALSE){colnames(res11)<-c("chr","pos","p-value")}
                 if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
                 if(is.null(galaxyy1)==FALSE){colnames(galaxyy1)<-c("chr","pos","LOD")}
-                
                 plotresult<-list(mxmp,res11,chr_name,galaxyy1)
-                
                 wb <- createWorkbook("Fred")
                 addWorksheet(wb, "sheet1")
                 addWorksheet(wb, "sheet2")
                 addWorksheet(wb, "sheet3")
                 addWorksheet(wb, "sheet4")
-                
                 writeData(wb, sheet = "sheet1", plotresult[[1]])
                 writeData(wb, sheet = "sheet2", plotresult[[2]])
                 writeData(wb, sheet = "sheet3", plotresult[[3]])
                 writeData(wb, sheet = "sheet4", plotresult[[4]])
-                
                 saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
-                
-                
                 if(DrawPlot==TRUE){
                   if(PlotFormat=="*.png")
-                  {png(paste(NUM,"_res.png"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
+                  {
+                    png(paste(NUM,"_res.png"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
                   }else if(PlotFormat=="*.tiff"){
                     tiff(paste(NUM,"_res.tiff"), width=widqqvalue, height=heightqqvalue, units= "px", pointsize = pointsizeqqvalue,res=resppi)
                   }else if(PlotFormat=="*.jpeg"){
@@ -1019,13 +1023,13 @@ QTL.gCIMapping.GUI<-function(){
                     pdf(paste(NUM,"_res.pdf"), width=16)
                   }
                   
-                  gcimFunc(mxmp,galaxyy1,res11,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50",2.5)
+                  gcimFunc(mxmp,galaxyy1,res11,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50",CriLOD)
                   dev.off()
                 }
                 
               },silent=FALSE)  
             }  
-            incProgress(1/(trait2-trait1+1), detail = paste("Doing part", NUM))
+            incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
             Sys.sleep(0.1)
           }
           
@@ -1143,13 +1147,13 @@ QTL.gCIMapping.GUI<-function(){
   ui <-tagList(
     navbarPage(
       "",id = "tabs",
-      tabPanel(strong("QTL.gCIMapping"),
+      tabPanel(strong("QTL.gCIMapping.GUI"),
                
-               h2("QTL.gCIMapping (QTL genome-wide Composite Interval Mapping)",align="center"),
+               h2("QTL.gCIMapping.GUI (QTL genome-wide Composite Interval Mapping with Graphical User Interface)",align="center"),
                column(3,
                       br(),
                       h4(strong("Coding criteria")),
-                      offset=4
+                      offset=3
                ),
                column(4,
                       br(),
@@ -1158,37 +1162,41 @@ QTL.gCIMapping.GUI<-function(){
                ),
                column(4,     
                       tableOutput("codeexample"),
-                      offset = 3
+                      offset = 2
                ),
                column(4,      
                       tableOutput("dataexample")
                ),
                column(12, 
                       br(),
-                      h4(strong("Reference"),align="center")
+                      h4(strong("Reference")),
+                      offset = 2
                ),
                
                
                
-               column(7,
+               column(8,
                       
                       h4("1. Wang Shi-Bo, Wen Yang-Jun, Ren Wen-Long, Ni Yuan-Li, Zhang Jin, Feng Jian-Ying, Zhang Yuan-Ming*.  
                          Mapping small-effect and linked quantitative trait loci for complex traits in backcross or DH populations via
                          a multi-locus GWAS methodology. Scientific Reports 2016,6:29951."),
                       h4("2. Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Jim M. Dunwell, Zhang Yuan-Ming*. An
-                         efficient multi-locus mixed model framework for the detection of small and linked QTLs in F2. Submitted"),
-                      br(),
+                         efficient multi-locus mixed model framework for the detection of small and linked QTLs 
+                         in F2.Briefings in Bioinformatics doi:10.1093/bib/bby058."),
+                      h4("3. Zhang Ya-Wen, Jim M. Dunwell, Zhang Yuan-Ming*. QTL.gCIMapping.GUI v2.0: An R software for detecting small-effect and linked QTLs 
+                         for quantitative traits in bi-parental segregation populations. Computational and Structural Biotechnology Journal, in revision."),
+                      
                       br(),
                       h4("Authors: Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming"),
                       h4("Maintainer: Zhang Yuan-Ming (soyzhang at mail.hzau.edu.cn)"), 
-                      h4("QTL.gCIMapping version 2.0, Realeased April 2018"),
-                      offset = 3)
+                      h4("QTL.gCIMapping version 2.0, Realeased November 2019"),
+                      offset = 2)
                       ),
       
       
       tabPanel(strong("Start"),
                
-               titlePanel("QTL.gCIMapping (QTL genome-wide Composite Interval Mapping)"),
+               titlePanel("QTL.gCIMapping.GUI"),
                sidebarLayout(
                  sidebarPanel(
                    radioButtons("dataformat", "Please select data format", choices = c("GCIM","WinQTLCart","QTLIciMapping"),selected="GCIM"),
@@ -1215,80 +1223,43 @@ QTL.gCIMapping.GUI<-function(){
                    tabsetPanel(id="inTabset",
                                tabPanel("Dataset",value = "DA",
                                         conditionalPanel("input.fileType == 'Genotype'",
-                                                         #h3("Genotype"),
                                                          dataTableOutput("genTable")),
                                         conditionalPanel( "input.fileType == 'Phenotype'",
-                                                          #h3("Phenotype"),
                                                           dataTableOutput("pheTable")),
                                         conditionalPanel( "input.fileType == 'Linkage map'",
-                                                          #h3("Linkage map"),
-                                                          dataTableOutput("mapTable")),
+                                                         dataTableOutput("mapTable")),
                                         conditionalPanel( "input.fileType == 'Covariate'",
-                                                          #h3("Covariate"),
-                                                          dataTableOutput("covTable")),
+                                                         dataTableOutput("covTable")),
                                         conditionalPanel( "input.dataformat == 'WinQTLCart'",
-                                                          #h3("Dataset"),
                                                           verbatimTextOutput("TableWIN"))
                                ),
                                tabPanel("Parameter Settings",value = "PA",
                                         fluidRow(  
                                           br(), 
                                           br(),
-                                          column(4,  
-                                                 radioButtons("Pop", "Please select Population", choices = c("DH","RIL","BC1","BC2","F2"),selected="DH",inline = "TRUE")
-                                          ),
-                                          column(4,  
-                                                 radioButtons("model", "Please select Model", choices = c("Random model","Fixed model"),inline = "TRUE")
-                                          ),
-                                          column(4,  
-                                                 textInput("Walk", "Walk Speed for Genome-wide Scanning (cM):",value="1")
-                                          ),
-                                          column(4,
+                                          column(6,  
+                                                 radioButtons("Pop", "Please select Population", choices = c("DH","RIL","BC1","BC2","F2"),selected="DH"),
+                                                 radioButtons("model", "Please select Model", choices = c("Random model","Fixed model")),
+                                                 conditionalPanel("input.Pop == 'F2'",
+                                                 radioButtons("likelihood","Likelihood function (only for F2):",choices=c("REML","ML")),
+                                                 radioButtons("Rqtl","Completing CIM in the neighborhood (only for F2)",choices=c("TRUE","FALSE"),selected="FALSE")
+                                                ),
+                                                 textInput("Walk", "Walk Speed for Genome-wide Scanning (cM):",value="1"),
                                                  textInput("Crilod", "Critical LOD score",value="2.5")
-                                          ),
-                                          column(4,
-                                                 br(),
-                                                 radioButtons("likelihood","Likelihood function (only for F2):",choices=c("REML","ML"),inline = "TRUE")
-                                          ),
-                                          column(4,
-                                                 br(),
-                                                 radioButtons("Rqtl","Completing CIM in the neighborhood (only for F2)",choices=c("TRUE","FALSE"),selected="FALSE",inline = "TRUE")
-                                          ),
-                                          column(4,
-                                                 br(),
-                                                 radioButtons("drawplot","Draw plot or not",choices=c("TRUE","FALSE"),inline = "TRUE")
-                                          ),
+                                           ),
                                           
-                                          column(4,
-                                                 br(),      
-                                                 radioButtons("resolution","Resolution of plot",choices=c("Low","High"),inline = "TRUE")
-                                          ),
-                                          
-                                          column(4,
-                                                 br(),       
-                                                 radioButtons("Plotformat","Plot format",choices=c("*.png","*.tiff","*.jpeg","*.pdf"),inline = "TRUE")
-                                          ),
-                                          
-                                          column(4,
-                                                 h5(strong("Select trait ID")),
-                                                 textInput("Trait1","From",value="1")
-                                          ),
-                                          column(4,
-                                                 br(),
-                                                 br(),
-                                                 textInput("Trait2","To",value="1")
-                                          ),
-                                          
-                                          column(4,
-                                                 br(),
-                                                 br(),
-                                                 textInput("SavePath", "Save path",value = "C:/Users/Administrator/Desktop")
-                                          ),
+                                          column(6, 
+                                                 textInput("trait", "Traits analyzed", value="1"),
+                                                 textInput("SavePath", "Save path",value = "C:/Users/Administrator/Desktop"),
+                                                 radioButtons("drawplot","Draw plot or not",choices=c("TRUE","FALSE")),
+                                                 conditionalPanel("input.drawplot == 'TRUE'",
+                                                 radioButtons("resolution","Resolution of plot",choices=c("General","High")),
+                                                 radioButtons("Plotformat","Plot format",choices=c("*.png","*.tiff","*.jpeg","*.pdf"))
+                                                 )
+                                               ),
                                           
                                           
-                                          column(12, 
-                                                 br(),
-                                                 br(),
+                                         column(12, 
                                                  br(),
                                                  br(),
                                                  actionButton("run", label = "Run",width=280, icon("paper-plane"), 
@@ -1310,56 +1281,29 @@ QTL.gCIMapping.GUI<-function(){
                                           ),
                                           
                                           conditionalPanel("input.Mose == 'Parameter Settings'",
-                                                           column(12,
-                                                                  br(),
-                                                                  radioButtons("Resolution2", "Select resolution of plot", c("General resolution", "High resolution", "Set by yourself"),inline = TRUE)
-                                                           ),
-                                                           column(3,
-                                                                  textInput("widthGCIM","Width (px):",value="1500")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("heightGCIM","Height (px):",value="600")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("pointGCIM","Word resolution (1/72 inch, ppi):",value="12")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("ppiGCIM","Figure resolution (ppi):",value="72")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("leGCIM","Legend and tick marks:",value="1.0")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("maGCIM","LOD line size:",value="1.0")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("baGCIM","Size for -log10(P) curve:",value="0.5")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("marGCIM","Margin space:",value="1.5")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("axisGCIM","Space between tick marks and axis:",value="1.0")
-                                                           ),
-                                                           column(3,
-                                                                  textInput("logGCIM","Times for max{-log10(P)}:",value="1.5")
-                                                           ),
-                                                           
                                                            column(6,
-                                                                  textInput("lodGCIM","Critical LOD score:",value="2.5")
-                                                           ),
-                                                           
-                                                           column(3,
-                                                                  selectInput("co1GCIM","LOD line color:",choices=c("red","black","blue","yellow","green","pink","purple","gray50","brown"))
-                                                           ),
-                                                           column(3,
-                                                                  
-                                                                  selectInput("co2GCIM","-log10(P) curve color1:",choices=c("gray50","black","blue","yellow","green","pink","purple","red","brown"))
-                                                           ),
-                                                           column(3,
-                                                                  
+                                                                  br(),
+                                                                  radioButtons("Resolution2", "Select resolution of plot", c("General resolution", "High resolution", "Set by yourself")),
+                                                                  textInput("widthGCIM","Width (px):",value="1500"),
+                                                                  textInput("heightGCIM","Height (px):",value="600"),
+                                                                  textInput("pointGCIM","Word resolution (1/72 inch, ppi):",value="12"),
+                                                                  textInput("ppiGCIM","Figure resolution (ppi):",value="72"),
+                                                                  textInput("lodGCIM","Critical LOD score:",value="2.5"),
+                                                                  textInput("maGCIM","LOD line size:",value="1.0"),
+                                                                  textInput("baGCIM","Size for -log10(P) curve:",value="0.5")
+                                                                 ),
+                                                          column(6,
+                                                                  br(),
+                                                                  textInput("leGCIM","Legend and tick marks:",value="1.0"),
+                                                                  textInput("marGCIM","Margin space:",value="1.5"),
+                                                                  textInput("axisGCIM","Space between tick marks and axis:",value="1.0"),
+                                                                  textInput("logGCIM","Times for max{-log10(P)}:",value="1.5"),
+                                                                  selectInput("co1GCIM","LOD line color:",choices=c("red","black","blue","yellow","green","pink","purple","gray50","brown")),
+                                                                  selectInput("co2GCIM","-log10(P) curve color1:",choices=c("gray50","black","blue","yellow","green","pink","purple","red","brown")),
                                                                   selectInput("co3GCIM","-log10(P) curve color2 (only for F2):",choices=c("green","black","blue","yellow","red","pink","purple","gray50","brown"))
                                                            )
+                                                           
+                                                          
                                           ),
                                           conditionalPanel("input.Mose == 'Draw plot'",
                                                            
@@ -1396,67 +1340,4 @@ QTL.gCIMapping.GUI<-function(){
   
    shinyApp(ui<-ui,server<-server)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

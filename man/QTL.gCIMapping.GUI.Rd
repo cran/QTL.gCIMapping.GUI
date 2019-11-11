@@ -10,9 +10,9 @@ Conduct multiple quantitative trait loci (QTL) mapping under the framework of ra
 \tabular{ll}{
 Package: \tab QTL.gCIMapping.GUI\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2018-6-10\cr
-Depends: \tab shiny,MASS,dplyr,parcor,qtl,doParallel\cr
+Version: \tab 2.0\cr
+Date: \tab 2019-11-9\cr
+Depends: \tab shiny,MASS,dplyr,parcor,qtl\cr
 Imports: \tab methods,openxlsx,stringr,Rcpp\cr
 License: \tab GPL version 2 or newer\cr
 LazyLoad: \tab yes\cr
@@ -23,14 +23,8 @@ Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming\cr
 Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \references{
-Mapping small-effect and linked quantitative trait loci for complex traits in backcross or DH populations via a multi-locus GWAS methodology.
-Wang Shi-Bo,Wen Yang-Jun,Ren Wen-Long,Ni Yuan-Li,Zhang Jin,Feng Jian-Ying,Zhang Yuan-Ming*
+An efficient multi-locus mixed model framework for the detection of small and linked QTLs in F2.Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Jim M. Dunwell, Zhang Yuan-Ming*
 }
-\keyword{
- R
-QTL.gCIMapping.GUI
-package
-} 
 \examples{
-\dontrun{QTL.gCIMapping.GUI()}
+\donttest{QTL.gCIMapping.GUI()}
 }
