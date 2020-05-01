@@ -26,12 +26,18 @@ Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming\cr
 Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \examples{
-G1=data(gen)
-P1=data(phe)
-M1=data(map)
-W1re<-WangF(phe,gen,map,yygg1=NULL,flagRIL=0,cov_en=NULL,Population="DH",1,2.5)
-WangS(flag=1,CriLOD=2.5,NUM=1,pheRaw=phe,W1re$chrRaw_name,W1re$yygg,
-W1re$mx,W1re$phe,W1re$chr_name,W1re$gen,W1re$mapname,CLO=1)
+\dontrun{
+data(gen)
+data(phe)
+data(map)
+W1re<-WangF(pheRaw=phe,genRaw=gen,mapRaw1=map,yygg1=NULL,
+flagRIL=0,cov_en=NULL,Population="DH",WalkSpeed=1,CriLOD=2.5)
+###
+ws<-WangS(flag=1,CriLOD=2.5,NUM=1,pheRaw=phe,
+chrRaw_name=W1re$chrRaw_name,yygg=W1re$yygg,mx=W1re$mx,
+phe=W1re$phe,chr_name=W1re$chr_name,gen=W1re$gen,
+mapname=W1re$mapname,CLO=1)
+}
 }
 
 

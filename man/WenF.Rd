@@ -21,10 +21,13 @@ Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming\cr
 Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \examples{
-G2=data(genf2)
-P2=data(phef2)
-M2=data(mapf2)
-WenF(phef2,genf2,mapf2,yygg1=NULL,cov_en=NULL,1,2.5,dir=tempdir())
+\dontrun{
+data(genf2)
+data(phef2)
+data(mapf2)
+wf<-WenF(pheRaw=phef2,genRaw=genf2,mapRaw1=mapf2,
+yygg1=NULL,cov_en=NULL,WalkSpeed=1,CriLOD=2.5,dir=tempdir())
+}
 }
 
 

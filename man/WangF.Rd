@@ -23,10 +23,13 @@ Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming\cr
 Maintainer: Yuanming Zhang<soyzhang@mail.hzau.edu.cn>
 }
 \examples{
-G1=data(gen)
-P1=data(phe)
-M1=data(map)
-WangF(phe,gen,map,yygg1=NULL,flagRIL=0,cov_en=NULL,Population="DH",1,2.5)
+\dontrun{
+data(gen)
+data(phe)
+data(map)
+wf<-WangF(pheRaw=phe,genRaw=gen,mapRaw1=map,yygg1=NULL,
+flagRIL=0,cov_en=NULL,Population="DH",WalkSpeed=1,CriLOD=2.5)
+}
 }
 
 

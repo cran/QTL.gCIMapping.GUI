@@ -122,19 +122,26 @@ QTL.gCIMapping.GUI<-function(){
       output<-list(y_jun3,y_jun00)
     })
     
-    output$genTable<-renderDataTable({
+    output$genTable<-renderTable({
       if(input$dataformat=="GCIM"){
         genRaw1_1<-as.matrix(rawGCIM()[[1]])
         genR_show<-genRaw1_1[-1,]
         colnames(genR_show)<-genRaw1_1[1,]
-        as.data.frame(genR_show)
-        
+        if(input$disgen == "head"){
+          return(head(as.data.frame(genR_show)))
+        }else{
+          return(as.data.frame(genR_show))
+        }
       }else if(input$dataformat=="QTLIciMapping"){
-        as.data.frame(rawICIM()[[1]])
-      }
+        if(input$disgen == "head"){
+          return(head(as.data.frame(rawICIM()[[1]])))
+        }else{
+          return(as.data.frame(rawICIM()[[1]]))
+        }
+       }
     })
     
-    output$pheTable<-renderDataTable({
+    output$pheTable<-renderTable({
       if(input$dataformat=="GCIM"){
         pheRaw1_1<-as.matrix(rawGCIM()[[2]])
         pheR_show<-pheRaw1_1[-1,]
@@ -145,7 +152,7 @@ QTL.gCIMapping.GUI<-function(){
         as.data.frame(rawICIM()[[2]])
       }
     })
-    output$mapTable<-renderDataTable({
+    output$mapTable<-renderTable({
       if(input$dataformat=="GCIM"){
         mapRaw1_1<-as.matrix(rawGCIM()[[3]])
         mapR_show<-mapRaw1_1[-1,]
@@ -156,14 +163,29 @@ QTL.gCIMapping.GUI<-function(){
       }
     })
     
-    output$covTable<-renderDataTable({
+    output$covTable<-renderTable({
       if(input$dataformat=="GCIM"){
-        covraw<-as.matrix(rawGCIM()[[4]])
+         if(is.null(rawGCIM()[[4]])){
+          ll<-as.data.frame(as.character("No covariate!")) 
+          colnames(ll)<-NULL
+          ll
+          }else{
+          covraw<-as.matrix(rawGCIM()[[4]])
+          covc<-covraw[-1,]
+          colnames(covc)<-covraw[1,]
+          as.data.frame(covc) 
+        }
+      }else if(input$dataformat=="QTLIciMapping"){
+        if(is.null(rawICIM()[[5]])){
+          ll<-as.data.frame(as.character("No covariate!")) 
+          colnames(ll)<-NULL
+          ll
+        }else{
+        covraw<-rawICIM()[[5]]
         covc<-covraw[-1,]
         colnames(covc)<-covraw[1,]
-        as.data.frame(covc)
-      }else if(input$dataformat=="QTLIciMapping"){
-        as.data.frame(rawICIM()[[5]])
+        as.data.frame(covc)   
+       }
       }
     })
     
@@ -874,7 +896,7 @@ QTL.gCIMapping.GUI<-function(){
       
       dir<-input$SavePath
       fileFormat<-input$dataformat;Model<-input$model;Population<-input$Pop
-      WalkSpeed<-as.numeric(input$Walk);CriLOD<-as.numeric(input$Crilod);Likelihood<-input$likelihood;flagrqtl<-input$Rqtl
+      WalkSpeed<-as.numeric(input$Walk);CriLOD<-as.numeric(input$Crilod);Likelihood<-input$likelihood;setseed<-as.numeric(input$Setseed);flagrqtl<-input$Rqtl
       DrawPlot<-input$drawplot;PlotFormat<-input$Plotformat;Resolution<-input$resolution
       trait<-as.numeric(input$trait);
       
@@ -924,7 +946,7 @@ QTL.gCIMapping.GUI<-function(){
         for(NUM in trait){
             rewen<-NULL;mxmp=NULL;galaxyy1<-NULL;res1a=NULL;res1d=NULL;chr_name=NULL 
             TRY1<-try({
-              outWEN<-WenS(flag,CriLOD,NUM,pheRaw,Likelihood,flagrqtl,WEN1re$yygg,WEN1re$mx,WEN1re$phe,WEN1re$chr_name,
+              outWEN<-WenS(flag,CriLOD,NUM,pheRaw,Likelihood,setseed,flagrqtl,WEN1re$yygg,WEN1re$mx,WEN1re$phe,WEN1re$chr_name,
                            WEN1re$v.map,WEN1re$gen.raw,WEN1re$a.gen.orig,WEN1re$d.gen.orig,WEN1re$n,WEN1re$names.insert2,WEN1re$X.ad.tran.data,WEN1re$X.ad.t4,dir)
               rewen<-outWEN$result
               mxmp<-outWEN$mxmp;res1a<-outWEN$res1a;res1d<-outWEN$res1d;chr_name<-outWEN$chr_name;galaxyy1<-outWEN$galaxyy1
@@ -934,7 +956,12 @@ QTL.gCIMapping.GUI<-function(){
             if ('try-error' %in% class(TRY1)|| !('try-error' %in% class(TRY1))){  
               TRY2<-try({ 
                 write.table(rewen,paste(NUM,"_GCIM result.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
-                
+               },silent=FALSE)  
+            }
+            
+            if ('try-error' %in% class(TRY2)|| !('try-error' %in% class(TRY2))){  
+              TRY3<-try({ 
+     
                 if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
                 if(is.null(res1a)==FALSE){colnames(res1a)<-c("chr","pos","-log10(p-value)")}
                 if(is.null(res1d)==FALSE){colnames(res1d)<-c("chr","pos","-log10(p-value)")}
@@ -957,7 +984,13 @@ QTL.gCIMapping.GUI<-function(){
                 writeData(wb, sheet = "sheet5", plotresult[[5]])
                 
                 saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
-                
+
+              },silent=FALSE)  
+            }
+            
+            if ('try-error' %in% class(TRY3)|| !('try-error' %in% class(TRY3))){  
+              TRY4<-try({ 
+               
                 if(DrawPlot==TRUE){
                   if(PlotFormat=="*.png")
                   {
@@ -974,8 +1007,8 @@ QTL.gCIMapping.GUI<-function(){
                 }
               },silent=FALSE)  
             }
-            incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
-            Sys.sleep(0.1)
+           incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
+           Sys.sleep(0.1)
           }
         })
         
@@ -996,6 +1029,11 @@ QTL.gCIMapping.GUI<-function(){
             if ('try-error' %in% class(TRY1)|| !('try-error' %in% class(TRY1))){   
               TRY2<-try({ 
                 write.table(rew,paste(NUM,"_GCIM result.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
+              },silent=FALSE)  
+            }  
+            
+            if ('try-error' %in% class(TRY2)|| !('try-error' %in% class(TRY2))){   
+              TRY3<-try({ 
                 if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
                 if(is.null(res11)==FALSE){colnames(res11)<-c("chr","pos","p-value")}
                 if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
@@ -1011,6 +1049,11 @@ QTL.gCIMapping.GUI<-function(){
                 writeData(wb, sheet = "sheet3", plotresult[[3]])
                 writeData(wb, sheet = "sheet4", plotresult[[4]])
                 saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
+                
+              },silent=FALSE)  
+            }  
+            if ('try-error' %in% class(TRY3)|| !('try-error' %in% class(TRY3))){   
+              TRY4<-try({ 
                 if(DrawPlot==TRUE){
                   if(PlotFormat=="*.png")
                   {
@@ -1177,19 +1220,24 @@ QTL.gCIMapping.GUI<-function(){
                
                column(8,
                       
-                      h4("1. Wang Shi-Bo, Wen Yang-Jun, Ren Wen-Long, Ni Yuan-Li, Zhang Jin, Feng Jian-Ying, Zhang Yuan-Ming*.  
-                         Mapping small-effect and linked quantitative trait loci for complex traits in backcross or DH populations via
-                         a multi-locus GWAS methodology. Scientific Reports 2016,6:29951."),
-                      h4("2. Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Jim M. Dunwell, Zhang Yuan-Ming*. An
-                         efficient multi-locus mixed model framework for the detection of small and linked QTLs 
-                         in F2.Briefings in Bioinformatics doi:10.1093/bib/bby058."),
-                      h4("3. Zhang Ya-Wen, Jim M. Dunwell, Zhang Yuan-Ming*. QTL.gCIMapping.GUI v2.0: An R software for detecting small-effect and linked QTLs 
-                         for quantitative traits in bi-parental segregation populations. Computational and Structural Biotechnology Journal, in revision."),
+                      h4("1.  Wang Shi-Bo, Wen Yang-Jun, Ren Wen-Long, Ni Yuan-Li, Zhang Jin, Feng Jian-Ying, 
+                         Zhang Yuan-Ming*. Mapping small-effect and linked quantitative trait loci for complex 
+                         traits in backcross or DH populations via a multi-locus GWAS methodology. Scientific Reports 
+                         2016, 6: 29951."),
+                      h4("2.  Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Jim M. Dunwell, Zhang Yuan-Ming*. 
+                         An efficient multi-locus mixed model framework for the detection of small and linked QTLs in F2. 
+                         Briefings in Bioinformatics 2019, 20(5): 1913-1924."),
+                      h4("3.  Zhang Ya-Wen, Wen Yang-Jun, Jim M. Dunwell, Zhang Yuan-Ming*. QTL.gCIMapping.GUI v2.0: An R 
+                         software for detecting small-effect and linked QTLs for quantitative traits in bi-parental segregation 
+                         populations. Computational and Structural Biotechnology Journal 2020, 18: 59-65."),
+                      h4("4.  Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Zhang Yuan-Ming*. The improved FASTmrEMMA and GCIM 
+                         algorithms for genome-wide association and linkage studies in large mapping populations. 
+                         The Crop Journal, in revision."),
                       
                       br(),
                       h4("Authors: Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming"),
                       h4("Maintainer: Zhang Yuan-Ming (soyzhang at mail.hzau.edu.cn)"), 
-                      h4("QTL.gCIMapping version 2.0, Realeased November 2019"),
+                      h4("QTL.gCIMapping version 2.0, Realeased April 2020"),
                       offset = 2)
                       ),
       
@@ -1223,13 +1271,14 @@ QTL.gCIMapping.GUI<-function(){
                    tabsetPanel(id="inTabset",
                                tabPanel("Dataset",value = "DA",
                                         conditionalPanel("input.fileType == 'Genotype'",
-                                                         dataTableOutput("genTable")),
+                                                         radioButtons("disgen", "Display genotype", choices = c(Head = "head",All = "all"),selected = "head",inline = TRUE),
+                                                         tableOutput("genTable")),
                                         conditionalPanel( "input.fileType == 'Phenotype'",
-                                                          dataTableOutput("pheTable")),
+                                                          tableOutput("pheTable")),
                                         conditionalPanel( "input.fileType == 'Linkage map'",
-                                                         dataTableOutput("mapTable")),
+                                                          tableOutput("mapTable")),
                                         conditionalPanel( "input.fileType == 'Covariate'",
-                                                         dataTableOutput("covTable")),
+                                                          tableOutput("covTable")),
                                         conditionalPanel( "input.dataformat == 'WinQTLCart'",
                                                           verbatimTextOutput("TableWIN"))
                                ),
@@ -1241,8 +1290,9 @@ QTL.gCIMapping.GUI<-function(){
                                                  radioButtons("Pop", "Please select Population", choices = c("DH","RIL","BC1","BC2","F2"),selected="DH"),
                                                  radioButtons("model", "Please select Model", choices = c("Random model","Fixed model")),
                                                  conditionalPanel("input.Pop == 'F2'",
-                                                 radioButtons("likelihood","Likelihood function (only for F2):",choices=c("REML","ML")),
-                                                 radioButtons("Rqtl","Completing CIM in the neighborhood (only for F2)",choices=c("TRUE","FALSE"),selected="FALSE")
+                                                 radioButtons("likelihood","Likelihood function:",choices=c("REML","ML")),
+                                                 textInput("Setseed", "Random seeds",value="11001"),
+                                                 radioButtons("Rqtl","Completing CIM in the neighborhood",choices=c("TRUE","FALSE"),selected="FALSE")
                                                 ),
                                                  textInput("Walk", "Walk Speed for Genome-wide Scanning (cM):",value="1"),
                                                  textInput("Crilod", "Critical LOD score",value="2.5")
