@@ -13,9 +13,9 @@ QTL.gCIMapping.GUI()
 \tabular{ll}{
 Package: \tab QTL.gCIMapping.GUI\cr
 Type: \tab Package\cr
-Version: \tab 2.1\cr
-Date: \tab 2020-4-30\cr
-Depends: \tab shiny,MASS,dplyr,parcor,qtl\cr
+Version: \tab 2.1.1\cr
+Date: \tab 2020-10-8\cr
+Depends: \tab shiny,MASS,qtl\cr
 Imports: \tab methods,openxlsx,stringr,Rcpp\cr
 License: \tab GPL version 2 or newer\cr
 LazyLoad: \tab yes\cr

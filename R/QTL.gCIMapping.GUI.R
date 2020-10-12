@@ -4,27 +4,6 @@ QTL.gCIMapping.GUI<-function(){
     
     options(shiny.maxRequestSize=-1)
     
-    datasetex<-reactive({
-      dataex<-data.frame(marker=c("RGA3(1)","wPt-6358","Hplc2","...", "gwm437", "gwm121","wmc157","","",""),
-                         chr=c("1","1","1","...","21","21","21","trait1","trait2","Covar"),
-                         pos=c("0","3.034","8.8291","...","162.5218","180.2878","197.9196","T19","T191","CovarName"),
-                         DH6.10=c("B","B","A","...","A","A","A","75.33","74","A"),  
-                         DH6.101=c("-","-","A","...","B","B","B","105","105.68","B"), 
-                         DH6.102=c("B","-","B","...","-","-","A","96.33","97.16","B") 
-      )
-    })
-    
-    output$dataexample<-renderTable(datasetex())
-    
-    
-    codeex<-reactive({
-      coex<-data.frame(Genotype=c("AA","Aa","aa","AA+Aa(Not aa)", "Aa+aa(Not AA)", "Missing"),
-                       Code=c("A","H","B","D","C","-"),
-                       Meaning=c("Homozygous genotype (P1)","Heterozygous genotype (F1)","Homozygous genotype (P2)","Dominance to P1","Dominance to P2"," Missing or unclear genotype")
-      )
-    })
-    
-    output$codeexample<-renderTable(codeex())
     
     observeEvent(input$parSe, {
       updateTabsetPanel(session, "inTabset",
@@ -51,7 +30,7 @@ QTL.gCIMapping.GUI<-function(){
       }else if(input$Resolution2=="High resolution"){
         widthG<-10000
         heightG<-4000
-        pointG<-12
+        pointG<-30
         ppiG<-300 
       }else if(input$Resolution2=="Set by yourself"){
         widthG<-0
@@ -138,7 +117,7 @@ QTL.gCIMapping.GUI<-function(){
         }else{
           return(as.data.frame(rawICIM()[[1]]))
         }
-       }
+      }
     })
     
     output$pheTable<-renderTable({
@@ -165,11 +144,11 @@ QTL.gCIMapping.GUI<-function(){
     
     output$covTable<-renderTable({
       if(input$dataformat=="GCIM"){
-         if(is.null(rawGCIM()[[4]])){
+        if(is.null(rawGCIM()[[4]])){
           ll<-as.data.frame(as.character("No covariate!")) 
           colnames(ll)<-NULL
           ll
-          }else{
+        }else{
           covraw<-as.matrix(rawGCIM()[[4]])
           covc<-covraw[-1,]
           colnames(covc)<-covraw[1,]
@@ -181,11 +160,11 @@ QTL.gCIMapping.GUI<-function(){
           colnames(ll)<-NULL
           ll
         }else{
-        covraw<-rawICIM()[[5]]
-        covc<-covraw[-1,]
-        colnames(covc)<-covraw[1,]
-        as.data.frame(covc)   
-       }
+          covraw<-rawICIM()[[5]]
+          covc<-covraw[-1,]
+          colnames(covc)<-covraw[1,]
+          as.data.frame(covc)   
+        }
       }
     })
     
@@ -216,8 +195,7 @@ QTL.gCIMapping.GUI<-function(){
     
     
     plotDH<-reactive({
-      
-      plotgcimFunc <- function(mxmp,galaxyy1,res11,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,color1,color2,lodthred)
+      gcimFunc <- function(mxmp,galaxyy1,res11,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,color1,color2,lodthred)
       {
         chr_pos <- mxmp[,1:2]
         chr_num <- length(chr_name)
@@ -236,6 +214,7 @@ QTL.gCIMapping.GUI<-function(){
             chr[i] <- chr_pos[pos[i],2]
           }
         }
+        ################# "pos" last ID, "pos" last value
         
         pos_acc <- matrix(0,chr_num,1)
         for(i in 1:chr_num)
@@ -281,26 +260,34 @@ QTL.gCIMapping.GUI<-function(){
         }
         
         negloP <- -log10(as.matrix(res11[,3]))
+        
         if(is.null(galaxyy1)==FALSE){
-          par(mar=c(2*margin_space,2*margin_space,2*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
-          plot(newposadd,negloP,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
-          par(new=TRUE)
-          plot(pospic,lodpic,type="h",col=color1,xlab="",ylab="Logarithm of odds (LOD)",cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadd)),ylim=c(0,max(lodpic)))
-          abline(h=lodthred)
+          ###################################change 20200914 two y axis
+          par(mar=c(2*margin_space,2*margin_space,0.5*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
+          plot(newposadd,negloP,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,
+               xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
           axis(side=4,cex.axis=legend_size)
-          mtext(expression('-log'[10]*'(P)'),side=4,line=3*axis_space,cex=legend_size)
           abline(v=pos_acc,lty=2,col="gray")
+          par(new=TRUE)
+          plot(pospic,lodpic,type="h",col=color1,yaxt="n",xlab="Genome position (cM)",ylab="",
+               cex.axis=legend_size,cex.lab=legend_size+0.4,lwd=mainline_size,xlim=c(0,max(newposadd)),
+               ylim=c(0,max(lodpic)))
+          axis(side=2,cex.axis=legend_size)
+          mtext("LOD score",side=2,line=3*axis_space,cex=legend_size+0.4,col=color1)
+          abline(h=lodthred,lty=5,col=color2)
+          mtext(expression(-'log'[10]*'(P-value)'),side=4,line=3*axis_space,cex=legend_size+0.4,col = color2)
+          
         }else{
-          plot(newposadd,negloP,type="l",col=color1,xlab="Genome position (cM)",ylab=expression('Expected -log'[10]*'(P)'),cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
+          par(mar=c(2*margin_space,2*margin_space,0.5*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
+          plot(newposadd,negloP,type="l",col=color1,xlab="Genome position (cM)",ylab=expression('Expected -log'[10]*'(P)'),cex.axis=legend_size+0.4,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadd)),ylim=c(0,logPCoff*max(negloP)))
+          abline(h=lodthred,lty=5,col=color1)
         }
-      }
-      
+      }    
     })
     
     
     plotF2<-reactive({
-      
-      plotgcimFuncF2 <- function(mxmp,galaxyy1,res1a,res1d,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,color1,color2,color3,lodthred)
+      gcimFuncF2 <- function(mxmp,galaxyy1,res1a,res1d,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,color1,color2,color3,lodthred)
       {
         chr_pos <- mxmp[,1:2]
         chr_num <- length(chr_name)
@@ -340,17 +327,19 @@ QTL.gCIMapping.GUI<-function(){
             newposadda[temp1a] <- newposadda[temp1a]+pos_acc[i-1]
           }
         }
-        firFild <- res1d[,1:2]
-        newposaddd <- as.matrix(firFild[,2])
-        for(i in 1:chr_num)
-        {
-          temp1d <- numeric()
-          temp1d <- which(firFild[,1]==i)
-          if(i>1)
-          {
-            newposaddd[temp1d] <- newposaddd[temp1d]+pos_acc[i-1]
-          }
-        }
+        # firFild <- res1d[,1:2]
+        # newposaddd <- as.matrix(firFild[,2])
+        # for(i in 1:chr_num)
+        # {
+        #   temp1d <- numeric()
+        #   temp1d <- which(firFild[,1]==i)
+        #   if(i>1)
+        #   {
+        #     newposaddd[temp1d] <- newposaddd[temp1d]+pos_acc[i-1]
+        #   }
+        # }
+        newposaddd<-newposadda
+        #############newposaddd==newposadda
         if(is.null(galaxyy1)==FALSE){
           if(is.null(dim(galaxyy1))==TRUE){
             galaxyy1<-matrix(galaxyy1,1,3)
@@ -365,23 +354,37 @@ QTL.gCIMapping.GUI<-function(){
         negloPa <- as.matrix(res1a[,3])
         negloPd <- as.matrix(res1d[,3])
         if(is.null(galaxyy1)==FALSE){
-          par(mar=c(2*margin_space,2*margin_space,2*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
-          plot(newposadda,negloPa,type="l",col=color3,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa)))
+          #####################################change 20200914 two y axis
+          par(mar=c(2*margin_space,2*margin_space,0.5*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
+          plot(newposadda,negloPa,type="l",col=color3,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,
+               xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa,negloPd)))
           par(new=TRUE)
-          plot(newposaddd,negloPd,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPd)))
-          par(new=TRUE)
-          plot(pospic,lodpic,type="h",col=color1,xlab="",ylab="Logarithm of odds (LOD)",cex.axis=legend_size,cex.lab=legend_size,lwd=mainline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,max(lodpic)))
-          abline(h=lodthred)
-          axis(side=4,cex.axis=legend_size)
-          mtext(expression('-log'[10]*'(P)'),side=4,line=3*axis_space,cex=legend_size)
+          plot(newposaddd,negloPd,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,
+               xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa,negloPd)))
+          axis(side=4,at=seq(0,logPCoff*max(negloPa,negloPd),ceiling(logPCoff*max(negloPa,negloPd)/5)),cex.axis=legend_size)
           abline(v=pos_acc,lty=2,col="gray")
-        }else{
-          plot(newposadda,negloPa,type="l",col=color3,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa)))
           par(new=TRUE)
-          plot(newposaddd,negloPd,type="l",col=color2,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPd)))
+          plot(pospic,lodpic,type="h",col=color1,yaxt="n",xlab="Genome position (cM)",ylab="",
+               cex.axis=legend_size,cex.lab=legend_size+0.4,lwd=mainline_size,xlim=c(0,max(newposadda,newposaddd)),
+               ylim=c(0,max(lodpic)))
+          axis(side=2,cex.axis=legend_size)
+          mtext("LOD score",side=2,line=3*axis_space,cex=legend_size+0.4,col=color1)
+          abline(h=lodthred,lty=5,col=color2)
+          mtext(expression(-'log'[10]*'(P-value)'),side=4,line=3*axis_space,cex=legend_size+0.4,col = color2)
+        }else{
+          ##########################change 20200914
+          par(mar=c(2*margin_space,2*margin_space,0.5*margin_space,2*margin_space)+margin_space,mgp=c(3*axis_space,axis_space,0))
+          plot(newposadda,negloPa,type="l",col=color3,xaxt="n",yaxt="n",xlab="",ylab="",lwd=backline_size,
+               xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa,negloPd)))
+          par(new=TRUE)
+          plot(newposaddd,negloPd,type="l",col=color2,yaxt="n",xlab="Genome position (cM)",ylab="",lwd=backline_size,
+               xlim=c(0,max(newposadda,newposaddd)),ylim=c(0,logPCoff*max(negloPa,negloPd)))
+          axis(side=4,at=seq(0,logPCoff*max(negloPa,negloPd),ceiling(logPCoff*max(negloPa,negloPd)/5)),cex.axis=legend_size)
+          abline(v=pos_acc,lty=2,col="gray")
+          mtext(expression(-'log'[10]*'(P-value)'),side=4,line=3*axis_space,cex=legend_size+0.4,col = color2)
+          
         }
-      }
-      
+      } 
     })
     
     
@@ -892,7 +895,7 @@ QTL.gCIMapping.GUI<-function(){
         result<-list(pheRaw=pheRaw,genRaw=genRaw,mapRaw1=mapRaw1,flag=flag,flagRIL=flagRIL,yygg1=yygg1,cov_en=cov_en)
         return(result)
       }
-    
+      
       
       dir<-input$SavePath
       fileFormat<-input$dataformat;Model<-input$model;Population<-input$Pop
@@ -915,11 +918,47 @@ QTL.gCIMapping.GUI<-function(){
         heightqqvalue<-600
         pointsizeqqvalue<-12
         resppi<-72 
+        ####################
+        if(Population=="F2"){
+          legend_size=1.2
+          mainline_size=2.5
+          backline_size=1.5
+          margin_space=1.5
+          axis_space=1.0
+          logPCoff=1.5
+          lodthred=2.5
+        }else{
+          legend_size=1.2
+          mainline_size=2.5
+          backline_size=1.5
+          margin_space=1.5
+          axis_space=1.0
+          logPCoff=1.5
+          lodthred=2.5
+        }
       }else if(Resolution=="High"){
         widqqvalue<-10000
         heightqqvalue<-4000
-        pointsizeqqvalue<-12
+        pointsizeqqvalue<-30
         resppi<-300 
+        ########################### 
+        if(Population=="F2"){
+          legend_size=0.8
+          mainline_size=2.5
+          backline_size=0.8
+          margin_space=1.5
+          axis_space=1.0
+          logPCoff=1.5
+          lodthred=2.5
+        }else{
+          legend_size=0.8
+          mainline_size=2.5
+          backline_size=2.5
+          margin_space=1.5
+          axis_space=1.0
+          logPCoff=1.5
+          lodthred=2.5
+        }
       }
       
       gcimFunc<-plotDH()
@@ -940,10 +979,10 @@ QTL.gCIMapping.GUI<-function(){
       if(Population=="F2"){
         
         withProgress(message = 'Running in progress', value = 0, {
-        
-        WEN1re<-WenF(pheRaw,genRaw,mapRaw1,yygg1,cov_en,WalkSpeed,CriLOD,dir)
-        
-        for(NUM in trait){
+          
+          WEN1re<-WenF(pheRaw,genRaw,mapRaw1,yygg1,cov_en,WalkSpeed,CriLOD,dir)
+          
+          for(NUM in trait){
             rewen<-NULL;mxmp=NULL;galaxyy1<-NULL;res1a=NULL;res1d=NULL;chr_name=NULL 
             TRY1<-try({
               outWEN<-WenS(flag,CriLOD,NUM,pheRaw,Likelihood,setseed,flagrqtl,WEN1re$yygg,WEN1re$mx,WEN1re$phe,WEN1re$chr_name,
@@ -956,41 +995,31 @@ QTL.gCIMapping.GUI<-function(){
             if ('try-error' %in% class(TRY1)|| !('try-error' %in% class(TRY1))){  
               TRY2<-try({ 
                 write.table(rewen,paste(NUM,"_GCIM result.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
-               },silent=FALSE)  
+              },silent=FALSE)  
             }
             
             if ('try-error' %in% class(TRY2)|| !('try-error' %in% class(TRY2))){  
               TRY3<-try({ 
-     
-                if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
-                if(is.null(res1a)==FALSE){colnames(res1a)<-c("chr","pos","-log10(p-value)")}
-                if(is.null(res1d)==FALSE){colnames(res1d)<-c("chr","pos","-log10(p-value)")}
-                if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
-                if(is.null(galaxyy1)==FALSE){colnames(galaxyy1)<-c("chr","pos","LOD")}
-                
-                plotresult<-list(mxmp,res1a,res1d,chr_name,galaxyy1)
-                
-                wb <- createWorkbook("Fred")
-                addWorksheet(wb, "sheet1")
-                addWorksheet(wb, "sheet2")
-                addWorksheet(wb, "sheet3")
-                addWorksheet(wb, "sheet4")
-                addWorksheet(wb, "sheet5")
-                
-                writeData(wb, sheet = "sheet1", plotresult[[1]])
-                writeData(wb, sheet = "sheet2", plotresult[[2]])
-                writeData(wb, sheet = "sheet3", plotresult[[3]])
-                writeData(wb, sheet = "sheet4", plotresult[[4]])
-                writeData(wb, sheet = "sheet5", plotresult[[5]])
-                
-                saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
-
+                ###############change 20201009
+                #if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
+                if(is.null(res1a)==FALSE){colnames(res1a)<-c("Chr","Position(cM)","'-log10(p-value)(a)'")}
+                if(is.null(res1d)==FALSE){colnames(res1d)<-c("Chr","Position(cM)","'-log10(p-value)(d)'")}
+                #if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
+                if(is.null(galaxyy1)==FALSE){colnames(galaxyy1)<-c("Chr (Significant QTL)","Position(cM) (Significant QTL)","LOD (Significant QTL)")}
+                #plotresult<-list(mxmp,res1a,res1d,chr_name,galaxyy1)
+                blank<-matrix("",nrow(res1a)-nrow(galaxyy1),ncol(galaxyy1))
+                galaxpin<-rbind(galaxyy1,blank)
+                res1d3<-as.matrix(res1d[,3])
+                colnames(res1d3)<-"'-log10(p-value)(d)'"
+                resultforplot<-cbind(res1a,res1d3,galaxpin)
+                #saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
+                write.table(resultforplot,paste(NUM,"_resultforplot.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
               },silent=FALSE)  
             }
             
             if ('try-error' %in% class(TRY3)|| !('try-error' %in% class(TRY3))){  
               TRY4<-try({ 
-               
+                
                 if(DrawPlot==TRUE){
                   if(PlotFormat=="*.png")
                   {
@@ -1002,23 +1031,23 @@ QTL.gCIMapping.GUI<-function(){
                   }else if(PlotFormat=="*.pdf"){
                     pdf(paste(NUM,"_resF2.pdf"), width=16)
                   }
-                  gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50","green",CriLOD)
+                  gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,"red","gray50","green",CriLOD)
                   dev.off()
                 }
               },silent=FALSE)  
             }
-           incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
-           Sys.sleep(0.1)
+            incProgress(1/(max(trait)-min(trait)+1), detail = paste("Doing part", NUM))
+            Sys.sleep(0.1)
           }
         })
         
       }else{
         
         withProgress(message = 'Running in progress', value = 0, {
-        
-        W1re<-WangF(pheRaw,genRaw,mapRaw1,yygg1,flagRIL,cov_en,Population,WalkSpeed,CriLOD)
-        
-        for(NUM in trait){
+          
+          W1re<-WangF(pheRaw,genRaw,mapRaw1,yygg1,flagRIL,cov_en,Population,WalkSpeed,CriLOD)
+          
+          for(NUM in trait){
             rew<-NULL;mxmp=NULL;galaxyy1<-NULL;res11=NULL;chr_name=NULL
             TRY1<-try({
               outW<-WangS(flag,CriLOD,NUM,pheRaw,W1re$chrRaw_name,W1re$yygg,W1re$mx,W1re$phe,W1re$chr_name,W1re$gen,W1re$mapname,CLO=NULL)
@@ -1034,22 +1063,15 @@ QTL.gCIMapping.GUI<-function(){
             
             if ('try-error' %in% class(TRY2)|| !('try-error' %in% class(TRY2))){   
               TRY3<-try({ 
-                if(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
-                if(is.null(res11)==FALSE){colnames(res11)<-c("chr","pos","p-value")}
-                if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
-                if(is.null(galaxyy1)==FALSE){colnames(galaxyy1)<-c("chr","pos","LOD")}
-                plotresult<-list(mxmp,res11,chr_name,galaxyy1)
-                wb <- createWorkbook("Fred")
-                addWorksheet(wb, "sheet1")
-                addWorksheet(wb, "sheet2")
-                addWorksheet(wb, "sheet3")
-                addWorksheet(wb, "sheet4")
-                writeData(wb, sheet = "sheet1", plotresult[[1]])
-                writeData(wb, sheet = "sheet2", plotresult[[2]])
-                writeData(wb, sheet = "sheet3", plotresult[[3]])
-                writeData(wb, sheet = "sheet4", plotresult[[4]])
-                saveWorkbook(wb,paste(NUM,"_resultforplot.xlsx",sep=""), overwrite = TRUE)
-                
+                #f(is.null(mxmp)==FALSE){colnames(mxmp)<-c("chr","pos")}
+                if(is.null(res11)==FALSE){colnames(res11)<-c("Chr","Position(cM)","'-log10(p-value)'")}
+                #if(is.null(chr_name)==FALSE){chr_name<-as.matrix(chr_name);colnames(chr_name)<-c("chr")}
+                if(is.null(galaxyy1)==FALSE){colnames(galaxyy1)<-c("Chr (Significant QTL)","Position(cM) (Significant QTL)","LOD (Significant QTL)")}
+                #plotresult<-list(mxmp,res11,chr_name,galaxyy1)
+                blank<-matrix("",nrow(res11)-nrow(galaxyy1),ncol(galaxyy1))
+                galaxpin<-rbind(galaxyy1,blank)
+                resultforplot<-cbind(res11,galaxpin)
+                write.table(resultforplot,paste(NUM,"_resultforplot.csv",sep=""),sep=",",row.names=FALSE,col.names = T)
               },silent=FALSE)  
             }  
             if ('try-error' %in% class(TRY3)|| !('try-error' %in% class(TRY3))){   
@@ -1065,8 +1087,7 @@ QTL.gCIMapping.GUI<-function(){
                   }else if(PlotFormat=="*.pdf"){
                     pdf(paste(NUM,"_res.pdf"), width=16)
                   }
-                  
-                  gcimFunc(mxmp,galaxyy1,res11,chr_name,1.0,1.0,0.5,1.5,1.0,1.5,"red","gray50",CriLOD)
+                  gcimFunc(mxmp,galaxyy1,res11,chr_name,legend_size,mainline_size,backline_size,margin_space,axis_space,logPCoff,"red","gray50",CriLOD)
                   dev.off()
                 }
                 
@@ -1082,10 +1103,7 @@ QTL.gCIMapping.GUI<-function(){
       
     })
     
-    
-    
     output$result<-renderUI(GCIM())
-    
     
     output$plotGCIM<-renderPlot({
       gcimFunc<-plotDH()
@@ -1098,35 +1116,25 @@ QTL.gCIMapping.GUI<-function(){
       req(input$fileplotGCIM)
       
       if(input$plotpopGCIM=="F2"){
-        mxmp<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet1",colNames = TRUE)
-        res1a<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet2",colNames = TRUE)
-        res1d<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet3",colNames = TRUE)
-        chr_name<-c(read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet4",colNames = TRUE))
-        galaxyy1<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet5",colNames = TRUE)
-        
-        mxmp<-sapply(mxmp,as.numeric)
-        res1a<-sapply(res1a,as.numeric)
-        res1d<-sapply(res1d,as.numeric)
-        chr_name<-sapply(chr_name,as.numeric)
-        galaxyy1<-sapply(galaxyy1,as.numeric)
-        
+        resultforplot<-as.matrix(fread(input$fileplotGCIM$datapath,stringsAsFactors=T))
+        mxmp<-apply(resultforplot[,1:2],2,as.numeric)
+        res1a<-apply(resultforplot[,1:3],2,as.numeric)
+        res1d<-apply(resultforplot[,c(1,2,4)],2,as.numeric)
+        chr_name<-as.numeric(unique(resultforplot[,1]))
+        galaxyy1q<-as.matrix(resultforplot[,5:7])
+        galaxyy1<-matrix(galaxyy1q[which(galaxyy1q!="NA")],,3)
+        galaxyy1<-matrix(apply(galaxyy1,2,as.numeric),,3)
         gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,plotle,plotma,plotba,plotmar,plotaxis,plotlog,plotco1,plotco2,plotco3,plotlod)
       }else{
-        mxmp<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet1",colNames = TRUE)
-        res11<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet2",colNames = TRUE)
-        chr_name<-c(read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet3",colNames = TRUE))
-        galaxyy1<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet4",colNames = TRUE)
-        
-        mxmp<-sapply(mxmp,as.numeric)
-        res11<-sapply(res11,as.numeric)
-        chr_name<-sapply(chr_name,as.numeric)
-        galaxyy1<-sapply(galaxyy1,as.numeric)
-        
+        resultforplot<-as.matrix(fread(input$fileplotGCIM$datapath,stringsAsFactors=T))
+        mxmp<-apply(resultforplot[,1:2],2,as.numeric)
+        res11<-apply(resultforplot[,1:3],2,as.numeric)
+        chr_name<-as.numeric(unique(resultforplot[,1]))
+        galaxyy1q<-resultforplot[,4:6]
+        galaxyy1<-matrix(galaxyy1q[which(galaxyy1q!="NA")],,3)
+        galaxyy1<-matrix(apply(galaxyy1,2,as.numeric),,3)
         gcimFunc(mxmp,galaxyy1,res11,chr_name,plotle,plotma,plotba,plotmar,plotaxis,plotlog,plotco1,plotco2,plotlod)
-        
       }
-      
-      
     })
     
     
@@ -1157,29 +1165,23 @@ QTL.gCIMapping.GUI<-function(){
         gcimFuncF2<-plotF2()
         
         if(input$plotpopGCIM=="F2"){
-          mxmp<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet1",colNames = TRUE)
-          res1a<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet2",colNames = TRUE)
-          res1d<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet3",colNames = TRUE)
-          chr_name<-c(read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet4",colNames = TRUE))
-          galaxyy1<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet5",colNames = TRUE)
-          
-          mxmp<-sapply(mxmp,as.numeric)
-          res1a<-sapply(res1a,as.numeric)
-          res1d<-sapply(res1d,as.numeric)
-          chr_name<-sapply(chr_name,as.numeric)
-          galaxyy1<-sapply(galaxyy1,as.numeric)
-          
+          resultforplot<-as.matrix(fread(input$fileplotGCIM$datapath,stringsAsFactors=T))
+          mxmp<-apply(resultforplot[,1:2],2,as.numeric)
+          res1a<-apply(resultforplot[,1:3],2,as.numeric)
+          res1d<-apply(resultforplot[,c(1,2,4)],2,as.numeric)
+          chr_name<-as.numeric(unique(resultforplot[,1]))
+          galaxyy1q<-as.matrix(resultforplot[,5:7])
+          galaxyy1<-matrix(galaxyy1q[which(galaxyy1q!="NA")],,3)
+          galaxyy1<-matrix(apply(galaxyy1,2,as.numeric),,3)
           gcimFuncF2(mxmp,galaxyy1,res1a,res1d,chr_name,plotle,plotma,plotba,plotmar,plotaxis,plotlog,plotco1,plotco2,plotco3,plotlod)
         }else{
-          mxmp<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet1",colNames = TRUE)
-          res11<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet2",colNames = TRUE)
-          chr_name<-c(read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet3",colNames = TRUE))
-          galaxyy1<-read.xlsx(input$fileplotGCIM$datapath,sheet = "sheet4",colNames = TRUE)
-          
-          mxmp<-sapply(mxmp,as.numeric)
-          res11<-sapply(res11,as.numeric)
-          chr_name<-sapply(chr_name,as.numeric)
-          galaxyy1<-sapply(galaxyy1,as.numeric)
+          resultforplot<-as.matrix(fread(input$fileplotGCIM$datapath,stringsAsFactors=T))
+          mxmp<-apply(resultforplot[,1:2],2,as.numeric)
+          res11<-apply(resultforplot[,1:3],2,as.numeric)
+          chr_name<-as.numeric(unique(resultforplot[,1]))
+          galaxyy1q<-resultforplot[,4:6]
+          galaxyy1<-matrix(galaxyy1q[which(galaxyy1q!="NA")],,3)
+          galaxyy1<-matrix(apply(galaxyy1,2,as.numeric),,3)
           gcimFunc(mxmp,galaxyy1,res11,chr_name,plotle,plotma,plotba,plotmar,plotaxis,plotlog,plotco1,plotco2,plotlod)
         }
         dev.off()
@@ -1192,34 +1194,30 @@ QTL.gCIMapping.GUI<-function(){
       "",id = "tabs",
       tabPanel(strong("QTL.gCIMapping.GUI"),
                
-               h2("QTL.gCIMapping.GUI (QTL genome-wide Composite Interval Mapping with Graphical User Interface)",align="center"),
-               column(3,
-                      br(),
-                      h4(strong("Coding criteria")),
-                      offset=3
+               h2("QTL genome-wide Composite Interval Mapping with Graphical User Interface",align="center"),
+               
+               h2("(QTL.gCIMapping.GUI)",align="center"),
+               
+               h2(
+                 img(src = "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6921137/bin/gr1.jpg",height = 580,width = 768),
+                 align="center"
                ),
-               column(4,
-                      br(),
-                      h4(strong("Dataset example")),
-                      offset=1
+               
+               h4(
+                 strong("GCIM format"),
+                 align="center"
                ),
-               column(4,     
-                      tableOutput("codeexample"),
-                      offset = 2
-               ),
-               column(4,      
-                      tableOutput("dataexample")
-               ),
+               
+               
                column(12, 
                       br(),
-                      h4(strong("Reference")),
+                      h4(strong("References")),
                       offset = 2
                ),
                
                
                
                column(8,
-                      
                       h4("1.  Wang Shi-Bo, Wen Yang-Jun, Ren Wen-Long, Ni Yuan-Li, Zhang Jin, Feng Jian-Ying, 
                          Zhang Yuan-Ming*. Mapping small-effect and linked quantitative trait loci for complex 
                          traits in backcross or DH populations via a multi-locus GWAS methodology. Scientific Reports 
@@ -1232,15 +1230,13 @@ QTL.gCIMapping.GUI<-function(){
                          populations. Computational and Structural Biotechnology Journal 2020, 18: 59-65."),
                       h4("4.  Wen Yang-Jun, Zhang Ya-Wen, Zhang Jin, Feng Jian-Ying, Zhang Yuan-Ming*. The improved FASTmrEMMA and GCIM 
                          algorithms for genome-wide association and linkage studies in large mapping populations. 
-                         The Crop Journal, in revision."),
-                      
+                         The Crop Journal 2020, 8(5): 723-732."),
                       br(),
                       h4("Authors: Zhang Ya-Wen, Wen Yang-Jun, Wang Shi-Bo, Zhang Yuan-Ming"),
                       h4("Maintainer: Zhang Yuan-Ming (soyzhang at mail.hzau.edu.cn)"), 
-                      h4("QTL.gCIMapping version 2.0, Realeased April 2020"),
+                      h4("QTL.gCIMapping version 2.1.1, Realeased October 2020"),
                       offset = 2)
-                      ),
-      
+      ),
       
       tabPanel(strong("Start"),
                
@@ -1290,26 +1286,26 @@ QTL.gCIMapping.GUI<-function(){
                                                  radioButtons("Pop", "Please select Population", choices = c("DH","RIL","BC1","BC2","F2"),selected="DH"),
                                                  radioButtons("model", "Please select Model", choices = c("Random model","Fixed model")),
                                                  conditionalPanel("input.Pop == 'F2'",
-                                                 radioButtons("likelihood","Likelihood function:",choices=c("REML","ML")),
-                                                 textInput("Setseed", "Random seeds",value="11001"),
-                                                 radioButtons("Rqtl","Completing CIM in the neighborhood",choices=c("TRUE","FALSE"),selected="FALSE")
-                                                ),
+                                                                  radioButtons("likelihood","Likelihood function:",choices=c("REML","ML")),
+                                                                  textInput("Setseed", "Random seeds",value="11001"),
+                                                                  radioButtons("Rqtl","Completing CIM in the neighborhood",choices=c("TRUE","FALSE"),selected="FALSE")
+                                                 ),
                                                  textInput("Walk", "Walk Speed for Genome-wide Scanning (cM):",value="1"),
                                                  textInput("Crilod", "Critical LOD score",value="2.5")
-                                           ),
+                                          ),
                                           
                                           column(6, 
                                                  textInput("trait", "Traits analyzed", value="1"),
                                                  textInput("SavePath", "Save path",value = "C:/Users/Administrator/Desktop"),
                                                  radioButtons("drawplot","Draw plot or not",choices=c("TRUE","FALSE")),
                                                  conditionalPanel("input.drawplot == 'TRUE'",
-                                                 radioButtons("resolution","Resolution of plot",choices=c("General","High")),
-                                                 radioButtons("Plotformat","Plot format",choices=c("*.png","*.tiff","*.jpeg","*.pdf"))
+                                                                  radioButtons("resolution","Resolution of plot",choices=c("General","High")),
+                                                                  radioButtons("Plotformat","Plot format",choices=c("*.png","*.tiff","*.jpeg","*.pdf"))
                                                  )
-                                               ),
+                                          ),
                                           
                                           
-                                         column(12, 
+                                          column(12, 
                                                  br(),
                                                  br(),
                                                  actionButton("run", label = "Run",width=280, icon("paper-plane"), 
@@ -1341,8 +1337,8 @@ QTL.gCIMapping.GUI<-function(){
                                                                   textInput("lodGCIM","Critical LOD score:",value="2.5"),
                                                                   textInput("maGCIM","LOD line size:",value="1.0"),
                                                                   textInput("baGCIM","Size for -log10(P) curve:",value="0.5")
-                                                                 ),
-                                                          column(6,
+                                                           ),
+                                                           column(6,
                                                                   br(),
                                                                   textInput("leGCIM","Legend and tick marks:",value="1.0"),
                                                                   textInput("marGCIM","Margin space:",value="1.5"),
@@ -1353,7 +1349,7 @@ QTL.gCIMapping.GUI<-function(){
                                                                   selectInput("co3GCIM","-log10(P) curve color2 (only for F2):",choices=c("green","black","blue","yellow","red","pink","purple","gray50","brown"))
                                                            )
                                                            
-                                                          
+                                                           
                                           ),
                                           conditionalPanel("input.Mose == 'Draw plot'",
                                                            
@@ -1366,7 +1362,7 @@ QTL.gCIMapping.GUI<-function(){
                                                                   br(),
                                                                   
                                                                   
-                                                                  fileInput("fileplotGCIM", "Input file to draw plot",multiple = TRUE,accept = ".xlsx")
+                                                                  fileInput("fileplotGCIM", "Input file to draw plot",multiple = TRUE)
                                                            ),   
                                                            
                                                            column(12,
@@ -1388,6 +1384,6 @@ QTL.gCIMapping.GUI<-function(){
     )
   )
   
-   shinyApp(ui<-ui,server<-server)
+  shinyApp(ui<-ui,server<-server)
 }
 
